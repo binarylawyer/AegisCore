@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "Aegis Movement Monitor",
   "nodes": [
     {
@@ -45,7 +45,8 @@
             {
               "name": "x-api-key",
               "value": "={{ $env.RESERVOIR_API_KEY }}"
-            }]
+            }
+          ]
         }
       },
       "id": "onchain-http",
@@ -275,9 +276,6 @@
     "executionOrder": "v1"
   },
   "staticData": null,
-  "tags": [
-    "aegis-core",
-    "movement"
-  ],
-  "versionId": "1"
+  "versionId": "1",
+  "active": false
 }

@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "Aegis Lead Scout",
   "nodes": [
     {
@@ -512,10 +512,6 @@
     "executionOrder": "v1"
   },
   "staticData": null,
-  "tags": [
-    "aegis-core",
-    "lead-gen"
-  ],
-  "versionId": "1"
+  "versionId": "1",
+  "active": false
 }
-

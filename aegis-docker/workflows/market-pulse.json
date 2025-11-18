@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "Aegis Market Pulse",
   "nodes": [
     {
@@ -270,9 +270,6 @@
     "executionOrder": "v1"
   },
   "staticData": null,
-  "tags": [
-    "aegis-core",
-    "market-intel"
-  ],
-  "versionId": "1"
+  "versionId": "1",
+  "active": false
 }
