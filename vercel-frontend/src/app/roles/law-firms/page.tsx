@@ -105,7 +105,7 @@ export default function LawFirmsPage() {
               </p>
               <div className="mt-6 rounded-md bg-zinc-50 p-4 dark:bg-zinc-900">
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  <strong className="text-zinc-900 dark:text-zinc-100">Example:</strong> You verify a client for Tier 3 (>$2M) transactions. The platform stores only: wallet address "0xABC..." and claim "TIER_3". No name, no passport, no financial documents—only the verifiable attestation that enables compliant participation.
+                  <strong className="text-zinc-900 dark:text-zinc-100">Example:</strong> You verify a client for Tier 3 ({'>'}$2M) transactions. The platform stores only: wallet address "0xABC..." and claim "TIER_3". No name, no passport, no financial documents—only the verifiable attestation that enables compliant participation.
                 </p>
               </div>
             </div>
