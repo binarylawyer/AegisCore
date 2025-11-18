@@ -43,12 +43,38 @@ services:
     restart: unless-stopped
     ports:
       - "7333:6333"
+      - "6334:6334"  # gRPC port for Opus integration
     environment:
       QDRANT__SERVICE__GRPC_PORT: 6334
     volumes:
       - qdrant_data:/qdrant/storage
     networks:
       - aegis-bento-net
+
+  qdrant-api:
+    build:
+      context: ./services/qdrant-api
+      dockerfile: Dockerfile
+    container_name: aegis-art-qdrant-api
+    restart: unless-stopped
+    depends_on:
+      qdrant:
+        condition: service_started
+    environment:
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      QDRANT_GRPC_PORT: 6334
+      API_KEY: "${QDRANT_API_KEY:-change-me-in-production}"
+      CORS_ORIGINS: "${QDRANT_CORS_ORIGINS:-*}"
+    ports:
+      - "8080:8080"
+    networks:
+      - aegis-bento-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   ollama:
     image: ollama/ollama:latest
@@ -108,6 +134,8 @@ services:
       RESERVOIR_API_KEY: "${RESERVOIR_API_KEY}"
       MARKET_SLACK_WEBHOOK: "${MARKET_SLACK_WEBHOOK}"
       EMBEDDING_MODEL: "${EMBEDDING_MODEL:-nomic-embed-text}"
+      LITELLM_MASTER_KEY: "${LITELLM_MASTER_KEY:-sk-1234}"
+      LITELLM_SCORING_MODEL: "${LITELLM_SCORING_MODEL:-google/gemini-2.5-pro}"
     ports:
       - "${N8N_PORT:-5678}:${N8N_PORT:-5678}"
     volumes:
@@ -117,6 +145,27 @@ services:
       - aegis-bento-net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: aegis-art-litellm
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      LITELLM_MASTER_KEY: "${LITELLM_MASTER_KEY:-sk-1234}"
+      AIMLAPI_KEY: "${AIMLAPI_KEY}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+    volumes:
+      - ./config/litellm/litellm.yaml:/app/litellm.yaml:ro
+    command: litellm --config /app/litellm.yaml --port 4000 --host 0.0.0.0
+    networks:
+      - aegis-bento-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
       interval: 30s
       timeout: 10s
       retries: 5
