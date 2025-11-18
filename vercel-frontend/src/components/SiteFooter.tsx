@@ -30,6 +30,11 @@ export default function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/tokenization" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
+                  Tokenization
+                </Link>
+              </li>
+              <li>
                 <Link href="/platform" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
                   Platform Architecture
                 </Link>

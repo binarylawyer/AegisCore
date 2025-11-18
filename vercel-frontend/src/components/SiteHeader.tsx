@@ -8,6 +8,7 @@ const mainNavigation = [
   { name: "Home", href: "/" },
   { name: "The Problem", href: "/regulatory-risks" },
   { name: "The Solution", href: "/solution" },
+  { name: "Tokenization", href: "/tokenization" },
   { name: "For Your Role", href: "/roles" },
   { name: "Platform", href: "/platform" },
 ];
