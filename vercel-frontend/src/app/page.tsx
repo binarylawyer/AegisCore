@@ -1,80 +1,196 @@
 import Link from "next/link";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950">
-      {/* Header */}
-      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
-                <span className="text-sm font-bold">AC</span>
-              </div>
-              <span className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-                Aegis Core
-              </span>
-            </Link>
-            <nav className="hidden md:flex md:space-x-8">
-              <Link
-                href="/about"
-                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-              >
-                About
-              </Link>
-              <Link
-                href="/platform"
-                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-              >
-                Platform
-              </Link>
-              <Link
-                href="/market-intelligence"
-                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-              >
-                Market Intelligence
-              </Link>
-              <Link
-                href="/profiler"
-                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-              >
-                Profiler
-              </Link>
-            </nav>
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/dashboard"
-                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
-              >
-                Sign In
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-indigo-50 to-white dark:from-indigo-950/20 dark:to-zinc-950">
+      <section className="relative overflow-hidden bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-950">
         <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
-          <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-6xl">
-              The Double-Blind Art Marketplace
+          <div className="mx-auto max-w-4xl text-center">
+            <h1 className="text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-6xl lg:text-7xl">
+              Regulatory Compliance for the
+              <span className="block text-indigo-600 dark:text-indigo-400">Global Art Market</span>
             </h1>
-            <p className="mt-6 text-xl leading-8 text-zinc-600 dark:text-zinc-400">
-              Solve the art market's fundamental paradox: enabling absolute privacy for collectors while ensuring complete compliance with global AML/CFT regulations.
+            <p className="mt-8 text-xl leading-8 text-zinc-600 dark:text-zinc-400 sm:text-2xl">
+              Aegis Core provides institutional-grade compliance infrastructure that protects all parties—law firms, galleries, artists, curators, and collectors—while enabling compliant, liquid art transactions.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link
                 href="/dashboard"
-                className="rounded-md bg-indigo-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="rounded-md bg-indigo-600 px-8 py-4 text-base font-semibold text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                Get Started
+                Access Dashboard
               </Link>
               <Link
-                href="/about"
+                href="/regulatory-risks"
                 className="text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-100"
               >
-                Learn More <span aria-hidden="true">→</span>
+                Understand the Risks <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Regulatory Risk Alert */}
+      <section className="bg-red-50 dark:bg-red-950/20">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="rounded-xl border border-red-200 bg-white p-8 dark:border-red-800 dark:bg-zinc-900">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-8 w-8 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div className="ml-4 flex-1">
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+                  New Regulatory Requirements Are Coming to the Art Market
+                </h2>
+                <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-400">
+                  FinCEN's 2024 proposed rule, EU's 5AMLD, and emerging regulations in the UK, UAE, and across Asia are creating unprecedented compliance obligations for art market participants. Galleries, dealers, advisors, and intermediaries now face mandatory AML/KYC requirements, transaction monitoring, and suspicious activity reporting—creating significant legal and financial exposure.
+                </p>
+                <div className="mt-6">
+                  <Link
+                    href="/regulatory-risks"
+                    className="inline-flex items-center text-base font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                  >
+                    Review Regulatory Requirements by Jurisdiction
+                    <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How Aegis Core Protects All Parties */}
+      <section className="bg-white py-24 dark:bg-zinc-900 sm:py-32">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-5xl">
+              Protecting All Parties Through Double-Blind Compliance
+            </h2>
+            <p className="mt-6 text-xl leading-8 text-zinc-600 dark:text-zinc-400">
+              Aegis Core's Double-Blind framework ensures regulatory compliance while preserving the privacy and relationships that make the art market function.
+            </p>
+          </div>
+          <div className="mx-auto mt-16 max-w-5xl">
+            <div className="grid gap-8 lg:grid-cols-3">
+              {/* Law Firms */}
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-8 dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-600">
+                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="mt-6 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Law Firms</h3>
+                <p className="mt-4 text-zinc-600 dark:text-zinc-400">
+                  Manage AML/KYC workflows for HNW clients with minimal administrative burden. Our B2B SaaS portal provides auditable compliance workflows while maintaining attorney-client privilege.
+                </p>
+                <Link
+                  href="/roles/law-firms"
+                  className="mt-6 inline-block text-sm font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                >
+                  Learn More →
+                </Link>
+              </div>
+
+              {/* Galleries */}
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-8 dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-600">
+                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <h3 className="mt-6 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Galleries</h3>
+                <p className="mt-4 text-zinc-600 dark:text-zinc-400">
+                  Protect your client relationships while meeting new compliance obligations. Access verified collectors without exposing your private client lists. Get paid instantly upon sale.
+                </p>
+                <Link
+                  href="/roles/galleries"
+                  className="mt-6 inline-block text-sm font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                >
+                  Learn More →
+                </Link>
+              </div>
+
+              {/* Artists */}
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-8 dark:border-zinc-800 dark:bg-zinc-900">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-600">
+                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </div>
+                <h3 className="mt-6 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Artists</h3>
+                <p className="mt-4 text-zinc-600 dark:text-zinc-400">
+                  Receive payment instantly when your work sells. Build relationships with collectors. Automatically receive royalties on all secondary market sales through enforced EIP-2981 compliance.
+                </p>
+                <Link
+                  href="/roles/artists"
+                  className="mt-6 inline-block text-sm font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                >
+                  Learn More →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The Solution Overview */}
+      <section className="bg-zinc-50 py-24 dark:bg-zinc-900 sm:py-32">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-5xl">
+              The Double-Blind Solution
+            </h2>
+            <p className="mt-6 text-xl leading-8 text-zinc-600 dark:text-zinc-400">
+              Separate identity verification from market participation. Compliance is abstracted to trusted fiduciaries and enforced anonymously on-chain.
+            </p>
+          </div>
+          <div className="mx-auto mt-16 max-w-4xl">
+            <div className="grid gap-8 md:grid-cols-2">
+              <div className="rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-900">
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Compliance-as-a-Service</h3>
+                <p className="mt-4 text-zinc-600 dark:text-zinc-400">
+                  Law firms use our B2B portal to manage AML/KYC workflows. The platform never sees client PII—maintaining attorney-client privilege while providing auditable compliance records.
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-900">
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">On-Chain Attestations</h3>
+                <p className="mt-4 text-zinc-600 dark:text-zinc-400">
+                  Verified collectors receive anonymous, on-chain attestations (ERC-3643 claims). Galleries see only compliance status—never identities. This creates a "walled garden" of verified participants.
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-900">
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Protected Relationships</h3>
+                <p className="mt-4 text-zinc-600 dark:text-zinc-400">
+                  Galleries cannot see each other's client lists. Collectors remain anonymous to sellers. The platform never stores user PII, insulating itself from liability.
+                </p>
+              </div>
+              <div className="rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-900">
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Organized Documentation</h3>
+                <p className="mt-4 text-zinc-600 dark:text-zinc-400">
+                  All compliance documentation, provenance records, custody agreements, and insurance policies are organized and accessible to authorized parties—collectors, regulators, tax bodies, and their representatives.
+                </p>
+              </div>
+            </div>
+            <div className="mt-8 text-center">
+              <Link
+                href="/solution"
+                className="inline-flex items-center text-base font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+              >
+                Learn How It Works
+                <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
               </Link>
             </div>
           </div>
@@ -82,329 +198,66 @@ export default function Home() {
       </section>
 
       {/* Market Opportunity */}
-      <section className="bg-gradient-to-b from-indigo-600 to-indigo-700 py-24 text-white sm:py-32">
+      <section className="bg-white py-24 dark:bg-zinc-900 sm:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-5xl">
               The $24B RWA Inflection Point
             </h2>
-            <p className="mt-6 text-lg leading-8 text-indigo-100">
-              The RWA tokenization market has grown <strong>380% in three years</strong>, from $5B (2022) to $24B+ (2025). Industry consensus projects <strong>$10-30 trillion by 2030</strong>.
-            </p>
-            <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
-              <div>
-                <div className="text-4xl font-bold">380%</div>
-                <div className="mt-2 text-sm text-indigo-100">Growth in 3 years</div>
-              </div>
-              <div>
-                <div className="text-4xl font-bold">$24B+</div>
-                <div className="mt-2 text-sm text-indigo-100">Current market size</div>
-              </div>
-              <div>
-                <div className="text-4xl font-bold">$10-30T</div>
-                <div className="mt-2 text-sm text-indigo-100">Projected by 2030</div>
-              </div>
-            </div>
-            <p className="mt-8 text-sm text-indigo-200">
-              Validated by BlackRock ($2.9B BUIDL), JPMorgan ($300B+ processed), and Goldman Sachs (spinning out Digital Asset Platform)
+            <p className="mt-6 text-xl leading-8 text-zinc-600 dark:text-zinc-400">
+              The Real World Asset tokenization market has demonstrated 380% growth in three years, reaching $24B+ in 2025. Industry consensus projects $10-30 trillion by 2030.
             </p>
           </div>
-        </div>
-      </section>
-
-      {/* Problem Statement */}
-      <section className="bg-white py-24 dark:bg-zinc-900 sm:py-32">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl lg:max-w-none">
-            <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl">
-              The Art Market's Core Paradox
-            </h2>
-            <p className="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-              High-net-worth collectors demand absolute anonymity, while regulators demand absolute transparency. This conflict creates an opaque, illiquid, and fragmented market.
-            </p>
-            <div className="mt-16 grid grid-cols-1 gap-8 lg:grid-cols-3">
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-8 dark:border-zinc-800 dark:bg-zinc-900">
-                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                  Opaque & High-Risk
-                </h3>
-                <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-                  Lacking a single source of truth for compliance, creating regulatory risk for all participants.
-                </p>
+          <div className="mx-auto mt-16 max-w-4xl">
+            <div className="grid gap-8 sm:grid-cols-3">
+              <div className="text-center">
+                <div className="text-5xl font-bold text-indigo-600 dark:text-indigo-400">380%</div>
+                <div className="mt-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">Growth in 3 years</div>
               </div>
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-8 dark:border-zinc-800 dark:bg-zinc-900">
-                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                  Illiquid
-                </h3>
-                <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-                  Beset by 30-90 day payment and settlement cycles, crippling cash flow for artists and galleries.
-                </p>
+              <div className="text-center">
+                <div className="text-5xl font-bold text-indigo-600 dark:text-indigo-400">$24B+</div>
+                <div className="mt-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">Current market size</div>
               </div>
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-8 dark:border-zinc-800 dark:bg-zinc-900">
-                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                  Fragmented
-                </h3>
-                <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-                  Galleries cannot access new, vetted buyers without risking their private client lists.
-                </p>
+              <div className="text-center">
+                <div className="text-5xl font-bold text-indigo-600 dark:text-indigo-400">$10-30T</div>
+                <div className="mt-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">Projected by 2030</div>
               </div>
+            </div>
+            <div className="mt-12 rounded-xl border border-zinc-200 bg-zinc-50 p-6 dark:border-zinc-800 dark:bg-zinc-900">
+              <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+                <strong className="text-zinc-900 dark:text-zinc-100">Institutional Validation:</strong> BlackRock's $2.9B BUIDL fund gained $700M in 11 days. JPMorgan processed $300B+ through tokenized networks. Goldman Sachs is spinning out its Digital Asset Platform. 70% of 2024 capital deployed from institutional investors.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Solution: Double-Blind */}
-      <section className="bg-zinc-50 py-24 dark:bg-zinc-900 sm:py-32">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl">
-              The Double-Blind Solution
-            </h2>
-            <p className="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-              Separate identity verification from market participation. Compliance is abstracted to trusted fiduciaries and enforced anonymously on-chain.
-            </p>
-          </div>
-          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-            <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-4">
-              <div className="flex flex-col">
-                <dt className="text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-100">
-                  <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                    </svg>
-                  </div>
-                  Collectors are Blind
-                </dt>
-                <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-zinc-600 dark:text-zinc-400">
-                  <p className="flex-auto">
-                    Their identity is protected by their legal advisors. The platform never sees PII.
-                  </p>
-                </dd>
-              </div>
-              <div className="flex flex-col">
-                <dt className="text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-100">
-                  <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  Sellers are Blind
-                </dt>
-                <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-zinc-600 dark:text-zinc-400">
-                  <p className="flex-auto">
-                    They see only non-falsifiable, on-chain attestations of compliance status.
-                  </p>
-                </dd>
-              </div>
-              <div className="flex flex-col">
-                <dt className="text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-100">
-                  <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                  Galleries are Blind
-                </dt>
-                <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-zinc-600 dark:text-zinc-400">
-                  <p className="flex-auto">
-                    They cannot see each other's private client lists, protecting their core asset.
-                  </p>
-                </dd>
-              </div>
-              <div className="flex flex-col">
-                <dt className="text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-100">
-                  <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  Platform is Blind
-                </dt>
-                <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-zinc-600 dark:text-zinc-400">
-                  <p className="flex-auto">
-                    Never stores user PII, insulating itself from liability and becoming a neutral utility.
-                  </p>
-                </dd>
-              </div>
-            </dl>
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="bg-white py-24 dark:bg-zinc-900 sm:py-32">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-4xl">
-              Platform Features
-            </h2>
-            <p className="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-              Built for artists, galleries, collectors, and legal professionals
-            </p>
-          </div>
-          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
-            <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
-              <div className="relative pl-16">
-                <dt className="text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-100">
-                  <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  Compliance-as-a-Service
-                </dt>
-                <dd className="mt-2 text-base leading-7 text-zinc-600 dark:text-zinc-400">
-                  B2B SaaS portal for law firms to manage AML/KYC workflows and issue on-chain attestations without exposing client PII.
-                </dd>
-              </div>
-              <div className="relative pl-16">
-                <dt className="text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-100">
-                  <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  Instant Payment
-                </dt>
-                <dd className="mt-2 text-base leading-7 text-zinc-600 dark:text-zinc-400">
-                  Solve the 90-day payment lag. Artists and galleries receive payment instantly upon sale via atomic smart contract execution.
-                </dd>
-              </div>
-              <div className="relative pl-16">
-                <dt className="text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-100">
-                  <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
-                  The Profiler
-                </dt>
-                <dd className="mt-2 text-base leading-7 text-zinc-600 dark:text-zinc-400">
-                  AI-powered lead generation tool using RAG (Qdrant + Google AI) to find new collectors from public art market data.
-                </dd>
-              </div>
-              <div className="relative pl-16">
-                <dt className="text-base font-semibold leading-7 text-zinc-900 dark:text-zinc-100">
-                  <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  Tokenization
-                </dt>
-                <dd className="mt-2 text-base leading-7 text-zinc-600 dark:text-zinc-400">
-                  Fractionalize artworks using ERC-721/ERC-3643 standards with compliant, permissioned tokens backed by legal entities.
-                </dd>
-              </div>
-            </dl>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
+      {/* CTA Section */}
       <section className="bg-indigo-600">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-          <div className="relative isolate overflow-hidden bg-zinc-900 px-6 py-24 text-center shadow-2xl sm:rounded-3xl sm:px-16">
-            <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Ready to transform the art market?
+        <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+              Ready to Protect Your Art Market Operations?
             </h2>
-            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-zinc-300">
-              Join galleries, artists, and collectors who are building the future of compliant, liquid art ownership.
+            <p className="mt-6 text-xl leading-8 text-indigo-100">
+              Join law firms, galleries, and artists who are building compliant, liquid art market infrastructure.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link
                 href="/dashboard"
-                className="rounded-md bg-white px-6 py-3 text-base font-semibold text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="rounded-md bg-white px-8 py-4 text-base font-semibold text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
-                Get Started
+                Access Dashboard
               </Link>
-              <Link href="/about" className="text-base font-semibold leading-6 text-white">
-                Learn More <span aria-hidden="true">→</span>
+              <Link href="/solution" className="text-base font-semibold leading-6 text-white">
+                Learn How It Works <span aria-hidden="true">→</span>
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-            <div>
-              <div className="flex items-center space-x-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
-                  <span className="text-sm font-bold">AC</span>
-                </div>
-                <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Aegis Core</span>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Product</h3>
-              <ul className="mt-4 space-y-2">
-                <li>
-                  <Link href="/dashboard" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
-                    Dashboard
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/platform" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
-                    Platform
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/profiler" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
-                    Profiler
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/market-intelligence" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
-                    Market Intelligence
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Company</h3>
-              <ul className="mt-4 space-y-2">
-                <li>
-                  <Link href="/about" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/about#compliance" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
-                    Compliance
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/platform" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
-                    Architecture
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Legal</h3>
-              <ul className="mt-4 space-y-2">
-                <li>
-                  <a href="#" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
-                    Privacy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
-                    Terms
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-8 border-t border-zinc-200 pt-8 dark:border-zinc-800">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              © 2024 Aegis Core. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
