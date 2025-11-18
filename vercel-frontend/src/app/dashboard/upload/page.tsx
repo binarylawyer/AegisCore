@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function UploadArtPage() {
   const router = useRouter();
@@ -49,18 +50,75 @@ export default function UploadArtPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // TODO: Implement actual upload logic with Google File API
-    // This would include:
-    // 1. Upload files to Google Cloud Storage via file-storage-service
-    // 2. Store metadata in Supabase
-    // 3. Create initial database record
-
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Upload images to Supabase Storage
+      const imageUrls: string[] = [];
+      
+      if (selectedFiles.length > 0) {
+        for (const file of selectedFiles) {
+          // Only upload image files (skip PDFs for now)
+          if (file.type.startsWith('image/')) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `artworks/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+              .from('artworks')
+              .upload(filePath, file);
+
+            if (uploadError) {
+              console.error('Upload error:', uploadError);
+              throw uploadError;
+            }
+
+            // Get public URL
+            const { data: { publicUrl } } = supabase.storage
+              .from('artworks')
+              .getPublicUrl(filePath);
+
+            imageUrls.push(publicUrl);
+          }
+        }
+      }
+
+      // Store artwork metadata in Supabase
+      const { data: artwork, error: dbError } = await supabase
+        .from('artworks')
+        .insert({
+          title: formData.title,
+          artist: formData.artist,
+          year: formData.year || null,
+          medium: formData.medium || null,
+          dimensions: formData.dimensions || null,
+          description: formData.description,
+          provenance: formData.provenance || null,
+          price: parseFloat(formData.price),
+          currency: formData.currency,
+          domicile: formData.domicile,
+          custody_type: formData.custodyType,
+          custody_location: formData.custodyLocation,
+          insurance_provider: formData.insuranceProvider || null,
+          insurance_policy_number: formData.insurancePolicyNumber || null,
+          insurance_value: formData.insuranceValue ? parseFloat(formData.insuranceValue) : null,
+          royalty_percentage: formData.royaltyPercentage ? parseFloat(formData.royaltyPercentage) : null,
+          royalty_recipient: formData.royaltyRecipient || null,
+          tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : [],
+          image_urls: imageUrls,
+          status: 'draft',
+          tokenized: false,
+        })
+        .select()
+        .single();
+
+      if (dbError) {
+        console.error('Database error:', dbError);
+        throw dbError;
+      }
+
       router.push("/dashboard/inventory");
     } catch (error) {
       console.error("Upload failed:", error);
+      alert("Failed to upload artwork. Please check the console for details.");
     } finally {
       setIsSubmitting(false);
     }

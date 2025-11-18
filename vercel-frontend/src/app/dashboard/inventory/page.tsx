@@ -1,39 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabaseClient";
 
-// Mock data - in production, this would come from Supabase
-const mockArtworks = [
-  {
-    id: "1",
-    title: "Untitled Composition",
-    artist: "Jane Doe",
-    year: "2024",
-    price: "125000",
-    currency: "USD",
-    status: "listed",
-    tokenized: false,
-    custodyLocation: "Geneva Freeport, Vault 42",
-    imageUrl: "/placeholder-art.jpg",
-  },
-  {
-    id: "2",
-    title: "Abstract No. 7",
-    artist: "John Smith",
-    year: "2023",
-    price: "85000",
-    currency: "EUR",
-    status: "draft",
-    tokenized: true,
-    custodyLocation: "Delaware Freeport",
-    imageUrl: "/placeholder-art.jpg",
-  },
-];
+type Artwork = {
+  id: string;
+  title: string;
+  artist: string;
+  year: string | null;
+  price: number;
+  currency: string;
+  status: string;
+  tokenized: boolean;
+  custody_location: string | null;
+  image_urls: string[] | null;
+};
 
 export default function InventoryPage() {
-  const [artworks] = useState(mockArtworks);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "listed" | "draft" | "tokenized">("all");
+
+  useEffect(() => {
+    fetchArtworks();
+  }, []);
+
+  const fetchArtworks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('artworks')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching artworks:', error);
+        return;
+      }
+
+      setArtworks(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredArtworks =
     filter === "all"
@@ -79,7 +90,12 @@ export default function InventoryPage() {
       </div>
 
       {/* Artworks Grid */}
-      {filteredArtworks.length === 0 ? (
+      {loading ? (
+        <div className="rounded-xl border border-zinc-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+          <p className="mt-4 text-zinc-500 dark:text-zinc-400">Loading artworks...</p>
+        </div>
+      ) : filteredArtworks.length === 0 ? (
         <div className="rounded-xl border border-zinc-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-900">
           <p className="text-zinc-500 dark:text-zinc-400">
             No artworks found.{" "}
@@ -97,32 +113,40 @@ export default function InventoryPage() {
               className="group rounded-xl border border-zinc-200 bg-white shadow-sm transition-all hover:border-indigo-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
             >
               <div className="aspect-square w-full overflow-hidden rounded-t-xl bg-zinc-100 dark:bg-zinc-800">
-                <div className="flex h-full items-center justify-center text-zinc-400">
-                  <svg
-                    className="h-16 w-16"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
+                {artwork.image_urls && artwork.image_urls.length > 0 ? (
+                  <img
+                    src={artwork.image_urls[0]}
+                    alt={artwork.title}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-zinc-400">
+                    <svg
+                      className="h-16 w-16"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                )}
               </div>
               <div className="p-4">
                 <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                   {artwork.title}
                 </h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  {artwork.artist} • {artwork.year}
+                  {artwork.artist} • {artwork.year || 'N/A'}
                 </p>
                 <div className="mt-4 flex items-center justify-between">
                   <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                    {artwork.currency} {parseInt(artwork.price).toLocaleString()}
+                    {artwork.currency} {artwork.price.toLocaleString()}
                   </span>
                   <div className="flex space-x-2">
                     {artwork.tokenized && (
@@ -142,7 +166,7 @@ export default function InventoryPage() {
                   </div>
                 </div>
                 <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                  {artwork.custodyLocation}
+                  {artwork.custody_location || 'No custody location'}
                 </p>
               </div>
             </Link>

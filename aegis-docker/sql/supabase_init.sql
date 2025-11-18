@@ -55,10 +55,44 @@ CREATE TABLE IF NOT EXISTS public.art_movements (
     ingested_at        timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS public.artworks (
+    id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    title               text NOT NULL,
+    artist              text NOT NULL,
+    year                text,
+    medium              text,
+    dimensions          text,
+    description         text NOT NULL,
+    provenance          text,
+    price               numeric(15,2) NOT NULL,
+    currency            text NOT NULL DEFAULT 'USD',
+    domicile            text NOT NULL,
+    custody_type        text NOT NULL,
+    custody_location    text NOT NULL,
+    insurance_provider  text,
+    insurance_policy_number text,
+    insurance_value     numeric(15,2),
+    royalty_percentage  numeric(5,2),
+    royalty_recipient   text,
+    tags                text[] DEFAULT ARRAY[]::text[],
+    image_urls          text[] DEFAULT ARRAY[]::text[],
+    metadata            jsonb DEFAULT '{}'::jsonb,
+    status              text NOT NULL DEFAULT 'draft',
+    tokenized           boolean NOT NULL DEFAULT false,
+    master_nft_address  text,
+    token_symbol        text,
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    updated_at          timestamptz NOT NULL DEFAULT now()
+);
+
 CREATE INDEX IF NOT EXISTS idx_collector_leads_likelihood ON public.collector_leads (likelihood DESC);
 CREATE INDEX IF NOT EXISTS idx_art_market_events_published_at ON public.art_market_events (published_at DESC);
 CREATE INDEX IF NOT EXISTS idx_art_movements_observed_at ON public.art_movements (observed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_artworks_status ON public.artworks (status);
+CREATE INDEX IF NOT EXISTS idx_artworks_tokenized ON public.artworks (tokenized);
+CREATE INDEX IF NOT EXISTS idx_artworks_created_at ON public.artworks (created_at DESC);
 
 COMMENT ON TABLE public.collector_leads IS 'Lead candidates produced by the n8n "Lead Scout" workflow.';
 COMMENT ON TABLE public.art_market_events IS 'News and intelligence captured by the "Market Pulse" workflow.';
 COMMENT ON TABLE public.art_movements IS 'Movement alerts from the "Movement Monitor" workflow.';
+COMMENT ON TABLE public.artworks IS 'Artwork inventory managed by galleries and artists through the dashboard.';
