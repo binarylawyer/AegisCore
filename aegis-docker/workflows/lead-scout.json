@@ -1,0 +1,521 @@
+﻿{
+  "name": "Aegis Lead Scout",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "value": "0 */6 * * *"
+            }
+          ]
+        }
+      },
+      "id": "lead-cron",
+      "name": "Lead Sweep Schedule",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.artsy.net/api/tokens/xapp_token",
+        "responseFormat": "json",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_id",
+              "value": "={{ $env.ARTSY_CLIENT_ID }}"
+            },
+            {
+              "name": "client_secret",
+              "value": "={{ $env.ARTSY_CLIENT_SECRET }}"
+            }
+          ]
+        }
+      },
+      "id": "artsy-token",
+      "name": "Get Artsy Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.artsy.net/api/shows?status=upcoming&size=50",
+        "responseFormat": "json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Xapp-Token",
+              "value": "={{ $node\"Get Artsy Token\".json.token }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-shows",
+      "name": "Fetch Candidate Shows",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const shows = $json._embedded?.shows ?? [];\nconst leads = shows.map((show, index) => {\n  const partner = show.partner || {};\n  const location = show.location || {};\n  const fairName = show.fair?.name;\n  return {\n    external_id: show.id || show._id || show.slug || `artsy_${index}`,\n    collector_name: partner.name || show.name || 'Unknown',\n    organization: partner.name || show.name || 'Unknown',\n    role: partner.type || (fairName ? 'fair' : 'gallery'),\n    city: location.city || location.public_address || '',\n    country: location.country || '',\n    start_date: show.start_at || null,\n    end_date: show.end_at || null,\n    category: fairName ? 'fair' : 'show',\n    summary: `${show.name || 'Untitled show'} - ${partner.name || 'independent'} - ${location.city || ''} ${location.country || ''}`.trim(),\n    source_url: show._links?.self?.href || show.href || `https://www.artsy.net/show/${show.slug}`\n  };\n});\nreturn leads.map(lead => ({ json: lead }));"
+      },
+      "id": "normalize-leads",
+      "name": "Normalize Prospects",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [
+        860,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://litellm:4000/v1/chat/completions",
+        "responseFormat": "json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.LITELLM_MASTER_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "={{ $env.LITELLM_SCORING_MODEL || 'gpt-4o-mini' }}"
+            },
+            {
+              "name": "temperature",
+              "value": "0"
+            },
+            {
+              "name": "messages",
+              "value": "={{ JSON.stringify([{ role: 'system', content: 'You are the lead analyst for the Aegis Core Profiler. Score each gallery or fair lead between 0 and 1 based on their appetite for discovering new artists, commissioning new work, and buying inventory on short notice. Respond ONLY with JSON: {\"score\": number 0-1, \"fit_reason\": string, \"persona_tags\": [string], \"lead_summary\": string}. Keep persona tags short (e.g., \"latam collector\", \"museum curator\").' }, { role: 'user', content: 'Lead: ' + ($json.collector_name || 'Unknown') + '\nRole: ' + ($json.role || 'gallery') + '\nOrganization: ' + ($json.organization || 'Unknown') + '\nLocation: ' + [$json.city, $json.country].filter(Boolean).join(', ') + '\nWindow: ' + ($json.start_date || 'tbd') + ' -> ' + ($json.end_date || 'tbd') + '\nCategory: ' + ($json.category || 'show') + '\nSummary: ' + ($json.summary || '') }]) }}"
+            }
+          ]
+        }
+      },
+      "id": "score-prospect",
+      "name": "Score Prospect",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1080,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const lead = $items('Normalize Prospects', 0, $itemIndex).json;\nconst raw = $json.choices?.[0]?.message?.content || '{}';\nlet parsed;\ntry {\n  parsed = JSON.parse(raw);\n} catch (error) {\n  parsed = { score: 0.45, fit_reason: 'LLM parse error', persona_tags: ['review'], lead_summary: lead.summary };\n}\nreturn [{\n  json: {\n    lead,\n    score: Number(parsed.score ?? 0.45),\n    fit_reason: parsed.fit_reason || 'Needs manual review',\n    persona_tags: parsed.persona_tags || [],\n    lead_summary: parsed.lead_summary || lead.summary\n  }\n}];"
+      },
+      "id": "extract-score",
+      "name": "Extract Lead Score",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://ollama:11434/api/embeddings",
+        "responseFormat": "json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "={{ $env.EMBEDDING_MODEL || 'nomic-embed-text' }}"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ ($json.lead_summary || '') + ' Persona tags: ' + ($json.persona_tags || []).join(', ') + '. Fit notes: ' + ($json.fit_reason || '') }}"
+            }
+          ]
+        }
+      },
+      "id": "vectorize-lead",
+      "name": "Vectorize Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const scored = $items('Extract Lead Score', 0, $itemIndex).json;\nconst embedding = $json.embedding || [];\nconst lead = scored.lead;\nconst payload = {\n  external_id: lead.external_id,\n  full_name: lead.collector_name,\n  organization: lead.organization,\n  role: lead.role,\n  region: [lead.city, lead.country].filter(Boolean).join(', '),\n  medium_focus: lead.category,\n  likelihood: scored.score,\n  persona_tags: scored.persona_tags,\n  lead_summary: scored.lead_summary,\n  source_url: lead.source_url,\n  source: { provider: 'artsy', fetched_at: new Date().toISOString() },\n  last_seen_at: lead.start_date || new Date().toISOString()\n};\nreturn [{\n  json: {\n    qdrant_point: {\n      id: lead.external_id,\n      vector: embedding,\n      payload: {\n        external_id: lead.external_id,\n        organization: lead.organization,\n        region: payload.region,\n        score: scored.score,\n        persona_tags: scored.persona_tags,\n        summary: scored.lead_summary,\n        medium_focus: lead.category,\n        source_url: lead.source_url\n      }\n    },\n    lead_record: payload,\n    alert: scored.score >= 0.75\n  }\n}];"
+      },
+      "id": "assemble-lead",
+      "name": "Assemble Lead Payload",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [
+        1740,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://qdrant:6333/collections/aegis_leads/points?wait=true",
+        "responseFormat": "json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "points",
+              "value": "={{ JSON.stringify([$json.qdrant_point]) }}"
+            }
+          ]
+        }
+      },
+      "id": "qdrant-upsert",
+      "name": "Upsert in Qdrant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1960,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const payload = $items('Assemble Lead Payload', 0, $itemIndex).json;\nreturn [{ json: payload.lead_record }];"
+      },
+      "id": "lead-record",
+      "name": "Prepare Lead Record",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://postgrest:3000/collector_leads",
+        "responseFormat": "json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "external_id",
+              "value": "={{ $json.external_id }}"
+            },
+            {
+              "name": "full_name",
+              "value": "={{ $json.full_name }}"
+            },
+            {
+              "name": "organization",
+              "value": "={{ $json.organization }}"
+            },
+            {
+              "name": "role",
+              "value": "={{ $json.role }}"
+            },
+            {
+              "name": "region",
+              "value": "={{ $json.region }}"
+            },
+            {
+              "name": "medium_focus",
+              "value": "={{ $json.medium_focus }}"
+            },
+            {
+              "name": "likelihood",
+              "value": "={{ $json.likelihood }}"
+            },
+            {
+              "name": "persona_tags",
+              "value": "={{ JSON.stringify($json.persona_tags || []) }}"
+            },
+            {
+              "name": "lead_summary",
+              "value": "={{ $json.lead_summary }}"
+            },
+            {
+              "name": "source",
+              "value": "={{ JSON.stringify($json.source) }}"
+            },
+            {
+              "name": "source_url",
+              "value": "={{ $json.source_url }}"
+            },
+            {
+              "name": "last_seen_at",
+              "value": "={{ $json.last_seen_at }}"
+            }
+          ]
+        }
+      },
+      "id": "postgrest-upsert",
+      "name": "Store in PostgREST",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2180,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "high-fit",
+              "leftValue": "={{ $json.alert ? 1 : 0 }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and",
+          "options": {
+            "typeValidation": "strict"
+          }
+        },
+        "options": {}
+      },
+      "id": "lead-alert-filter",
+      "name": "High-Intent Filter",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.MARKET_SLACK_WEBHOOK }}",
+        "responseFormat": "json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ `New high-intent lead ? ${$json.lead.organization || $json.lead.full_name || 'Unknown'} (${($json.persona_tags || []).join(', ')}) | Score ${($json.score || 0).toFixed(2)} | ${$json.lead_summary}` }}"
+            }
+          ]
+        }
+      },
+      "id": "lead-alert",
+      "name": "Slack Lead Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1740,
+        520
+      ]
+    }
+  ],
+  "connections": {
+    "lead-cron": {
+      "main": [
+        [
+          {
+            "node": "Get Artsy Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Artsy Token": {
+      "main": [
+        [
+          {
+            "node": "Fetch Candidate Shows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Candidate Shows": {
+      "main": [
+        [
+          {
+            "node": "Normalize Prospects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Prospects": {
+      "main": [
+        [
+          {
+            "node": "Score Prospect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Prospect": {
+      "main": [
+        [
+          {
+            "node": "Extract Lead Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Lead Score": {
+      "main": [
+        [
+          {
+            "node": "Vectorize Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "High-Intent Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vectorize Lead": {
+      "main": [
+        [
+          {
+            "node": "Assemble Lead Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assemble Lead Payload": {
+      "main": [
+        [
+          {
+            "node": "Upsert in Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Lead Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert in Qdrant": {
+      "main": []
+    },
+    "Prepare Lead Record": {
+      "main": [
+        [
+          {
+            "node": "Store in PostgREST",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "High-Intent Filter": {
+      "main": [
+        [
+          {
+            "node": "Slack Lead Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    "aegis-core",
+    "lead-gen"
+  ],
+  "versionId": "1"
+}
+

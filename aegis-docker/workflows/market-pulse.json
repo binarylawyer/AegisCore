@@ -1,0 +1,278 @@
+﻿{
+  "name": "Aegis Market Pulse",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "value": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "id": "pulse-cron",
+      "name": "Daily Digest Schedule",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        200,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.gdeltproject.org/api/v2/doc/doc?query=(art%20market%20OR%20art%20auction%20OR%20biennial)%20AND%20(language:english)&mode=ArtMarket&format=json&maxrecords=40",
+        "responseFormat": "json"
+      },
+      "id": "gdelt-fetch",
+      "name": "Fetch Art News",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        420,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const docs = $json.articles || $json.result?.docs || [];\nreturn docs.map((doc, index) => ({ json: {\n  headline: doc.title || doc.source || `Art story ${index}`,\n  summary: doc.excerpt || doc.summary || doc.snippet || '',\n  source_name: doc.sourceCommonName || doc.domain || '',\n  source_url: doc.url || doc.documentIdentifier || '',\n  published_at: doc.seenDate || doc.publishDateTime || null,\n  topics: doc.segementThemes ? doc.segmentThemes.split(';') : [],\n  impact_score: doc.socialImageEmbeds || doc.socialShares ? 0.7 : 0.4,\n  geography: { lat: doc.geoLat, lon: doc.geoLong, name: doc.location },\n  raw: doc\n} }));"
+      },
+      "id": "split-events",
+      "name": "Split Events",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [
+        640,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://postgrest:3000/art_market_events",
+        "responseFormat": "json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "headline",
+              "value": "={{ $json.headline }}"
+            },
+            {
+              "name": "summary",
+              "value": "={{ $json.summary }}"
+            },
+            {
+              "name": "source_name",
+              "value": "={{ $json.source_name }}"
+            },
+            {
+              "name": "source_url",
+              "value": "={{ $json.source_url }}"
+            },
+            {
+              "name": "impact_score",
+              "value": "={{ $json.impact_score }}"
+            },
+            {
+              "name": "topics",
+              "value": "={{ JSON.stringify($json.topics || []) }}"
+            },
+            {
+              "name": "geography",
+              "value": "={{ JSON.stringify($json.geography || {}) }}"
+            },
+            {
+              "name": "published_at",
+              "value": "={{ $json.published_at }}"
+            }
+          ]
+        }
+      },
+      "id": "store-events",
+      "name": "Store Market Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const docs = ($json.articles || $json.result?.docs || []).slice(0, 8);\nreturn [{ json: { digestItems: docs.map(doc => ({ title: doc.title, source: doc.sourceCommonName || doc.domain, url: doc.url, summary: doc.excerpt || doc.summary || '' })) } }];"
+      },
+      "id": "digest-prep",
+      "name": "Prepare Digest",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [
+        640,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://litellm:4000/v1/chat/completions",
+        "responseFormat": "json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.LITELLM_MASTER_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "={{ $env.LITELLM_SCORING_MODEL || 'gpt-4o-mini' }}"
+            },
+            {
+              "name": "temperature",
+              "value": "0.4"
+            },
+            {
+              "name": "messages",
+              "value": "={{ JSON.stringify([{ role: 'system', content: 'Create a 6-bullet digest for gallery directors. Highlight where the event happened, why it matters commercially, and call out collector/curator angles. Reply in Markdown.' }, { role: 'user', content: ($json.digestItems || []).map((item, idx) => `${idx + 1}. ${item.title} (${item.source}) - ${item.summary}`).join('\n') }]) }}"
+            }
+          ]
+        }
+      },
+      "id": "digest-llm",
+      "name": "Summarize Digest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.MARKET_SLACK_WEBHOOK }}",
+        "responseFormat": "json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ '*Aegis Market Pulse* (Daily 07:00 UTC)\n' + ($json.choices[0].message.content || 'No notable events today.') }}"
+            }
+          ]
+        }
+      },
+      "id": "digest-alert",
+      "name": "Send Digest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        360
+      ]
+    }
+  ],
+  "connections": {
+    "Daily Digest Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch Art News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Art News": {
+      "main": [
+        [
+          {
+            "node": "Split Events",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Events": {
+      "main": [
+        [
+          {
+            "node": "Store Market Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Digest": {
+      "main": [
+        [
+          {
+            "node": "Summarize Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Digest": {
+      "main": [
+        [
+          {
+            "node": "Send Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    "aegis-core",
+    "market-intel"
+  ],
+  "versionId": "1"
+}

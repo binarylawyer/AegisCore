@@ -1,0 +1,283 @@
+﻿{
+  "name": "Aegis Movement Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "value": "0 */12 * * *"
+            }
+          ]
+        }
+      },
+      "id": "movement-cron",
+      "name": "Movement Sweep",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        180,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.gdeltproject.org/api/v2/doc/doc?query=(art%20shipment%20OR%20museum%20loan%20OR%20art%20seizure)%20AND%20language:english&mode=ArtLogistics&format=json&maxrecords=30",
+        "responseFormat": "json"
+      },
+      "id": "logistics-http",
+      "name": "Fetch Logistics Alerts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        420,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.reservoir.tools/transfers/v1?limit=25&collections=artblocks&sortDirection=desc",
+        "responseFormat": "json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.RESERVOIR_API_KEY }}"
+            }]
+        }
+      },
+      "id": "onchain-http",
+      "name": "Fetch Onchain Transfers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const logisticsPayload = $items('Fetch Logistics Alerts', 0, 0)?.json || {};\nconst logisticsDocs = logisticsPayload.articles || logisticsPayload.result?.docs || [];\nconst logisticEvents = logisticsDocs.slice(0, 10).map(doc => ({\n  asset_label: doc.title || doc.documentIdentifier || 'Physical work',\n  asset_type: 'physical',\n  movement_class: doc.title?.toLowerCase().includes('seized') ? 'seizure' : 'logistics',\n  origin_region: doc.location || doc.sourceCountry || '',\n  destination_region: doc.sourceLocation || doc.location || '',\n  channel: 'logistics',\n  attention_score: doc.title?.toLowerCase().includes('seized') ? 0.95 : 0.65,\n  metadata: { url: doc.url, summary: doc.excerpt || doc.summary || '' },\n  observed_at: doc.seenDate || doc.publishDateTime || new Date().toISOString()\n}));\nconst transfers = $json.transfers || $json.activities || [];\nconst digitalEvents = transfers.slice(0, 20).map(tx => ({\n  asset_label: tx.token?.name || tx.collection?.name || 'NFT transfer',\n  asset_type: 'digital',\n  movement_class: 'onchain',\n  origin_region: tx.fromAddress || '',\n  destination_region: tx.toAddress || '',\n  channel: 'ethereum',\n  attention_score: tx.price?.amount?.decimal ? Math.min(1, Number(tx.price.amount.decimal) / 50) : 0.4,\n  metadata: { txHash: tx.txHash, marketplace: tx.marketplace, tokenId: tx.token?.tokenId },\n  observed_at: tx.timestamp || tx.blockTimestamp || new Date().toISOString()\n}));\nreturn [...logisticEvents, ...digitalEvents].map(item => ({ json: item }));"
+      },
+      "id": "blend-events",
+      "name": "Blend Movements",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 2,
+      "position": [
+        860,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://postgrest:3000/art_movements",
+        "responseFormat": "json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "asset_label",
+              "value": "={{ $json.asset_label }}"
+            },
+            {
+              "name": "asset_type",
+              "value": "={{ $json.asset_type }}"
+            },
+            {
+              "name": "movement_class",
+              "value": "={{ $json.movement_class }}"
+            },
+            {
+              "name": "origin_region",
+              "value": "={{ $json.origin_region }}"
+            },
+            {
+              "name": "destination_region",
+              "value": "={{ $json.destination_region }}"
+            },
+            {
+              "name": "channel",
+              "value": "={{ $json.channel }}"
+            },
+            {
+              "name": "attention_score",
+              "value": "={{ $json.attention_score }}"
+            },
+            {
+              "name": "metadata",
+              "value": "={{ JSON.stringify($json.metadata || {}) }}"
+            },
+            {
+              "name": "observed_at",
+              "value": "={{ $json.observed_at }}"
+            }
+          ]
+        }
+      },
+      "id": "store-movement",
+      "name": "Store Movement",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1080,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "attention-threshold",
+              "leftValue": "={{ $json.attention_score }}",
+              "rightValue": 0.8,
+              "operator": {
+                "type": "number",
+                "operation": "larger"
+              }
+            },
+            {
+              "id": "risk-keyword",
+              "leftValue": "={{ $json.movement_class }}",
+              "rightValue": "seizure",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or",
+          "options": {
+            "caseSensitive": false
+          }
+        },
+        "options": {}
+      },
+      "id": "movement-alert-filter",
+      "name": "Risk Filter",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.MARKET_SLACK_WEBHOOK }}",
+        "responseFormat": "json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ '[ALERT] Movement: ' + ($json.asset_label || 'unknown asset') + ' (' + ($json.asset_type || 'unknown') + ') via ' + ($json.channel || 'unknown') + '. Score ' + (($json.attention_score || 0).toFixed(2)) + '. Origin ' + ($json.origin_region || 'unknown') + ' -> Destination ' + ($json.destination_region || 'unknown') + '.' }}"
+            }
+          ]
+        }
+      },
+      "id": "movement-alert",
+      "name": "Send Movement Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        380
+      ]
+    }
+  ],
+  "connections": {
+    "Movement Sweep": {
+      "main": [
+        [
+          {
+            "node": "Fetch Logistics Alerts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Logistics Alerts": {
+      "main": [
+        [
+          {
+            "node": "Fetch Onchain Transfers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Onchain Transfers": {
+      "main": [
+        [
+          {
+            "node": "Blend Movements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blend Movements": {
+      "main": [
+        [
+          {
+            "node": "Store Movement",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Risk Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Risk Filter": {
+      "main": [
+        [
+          {
+            "node": "Send Movement Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    "aegis-core",
+    "movement"
+  ],
+  "versionId": "1"
+}
