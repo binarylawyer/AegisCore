@@ -20,6 +20,7 @@ type Artwork = {
 export default function InventoryPage() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "listed" | "draft" | "tokenized">("all");
 
   useEffect(() => {
@@ -28,19 +29,22 @@ export default function InventoryPage() {
 
   const fetchArtworks = async () => {
     try {
-      const { data, error } = await supabase
+      setError(null);
+      const { data, error: fetchError } = await supabase
         .from('artworks')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching artworks:', error);
+      if (fetchError) {
+        console.error('Error fetching artworks:', fetchError);
+        setError('Failed to load artworks. Please try again.');
         return;
       }
 
       setArtworks(data || []);
-    } catch (error) {
-      console.error('Error:', error);
+    } catch (err) {
+      console.error('Error:', err);
+      setError('An unexpected error occurred. Please refresh the page.');
     } finally {
       setLoading(false);
     }
@@ -89,16 +93,39 @@ export default function InventoryPage() {
         ))}
       </div>
 
+      {/* Error State */}
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/20">
+          <div className="flex items-center">
+            <svg className="h-5 w-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="ml-3 text-sm text-red-800 dark:text-red-200">{error}</p>
+            <button
+              onClick={fetchArtworks}
+              className="ml-auto rounded-md bg-red-600 px-3 py-1 text-sm font-medium text-white hover:bg-red-700"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Artworks Grid */}
       {loading ? (
         <div className="rounded-xl border border-zinc-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-900">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
           <p className="mt-4 text-zinc-500 dark:text-zinc-400">Loading artworks...</p>
         </div>
-      ) : filteredArtworks.length === 0 ? (
+      ) : error ? null : filteredArtworks.length === 0 ? (
         <div className="rounded-xl border border-zinc-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-zinc-500 dark:text-zinc-400">
-            No artworks found.{" "}
+          <svg className="mx-auto h-12 w-12 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <p className="mt-4 text-zinc-500 dark:text-zinc-400">
+            {filter === "all" 
+              ? "No artworks found. "
+              : `No ${filter} artworks found. `}
             <Link href="/dashboard/upload" className="text-indigo-600 hover:underline dark:text-indigo-400">
               Upload your first artwork
             </Link>

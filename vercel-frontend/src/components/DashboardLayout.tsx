@@ -9,8 +9,12 @@ const navigation = [
   { name: "Inventory", href: "/dashboard/inventory" },
   { name: "Collectors", href: "/dashboard/collectors" },
   { name: "Tokenization", href: "/dashboard/tokenization" },
+];
+
+const externalNavigation = [
   { name: "Profiler", href: "/profiler" },
   { name: "Market Intel", href: "/market-intelligence" },
+  { name: "Main Site", href: "/" },
 ];
 
 export default function DashboardLayout({
@@ -36,7 +40,7 @@ export default function DashboardLayout({
                 </span>
               </Link>
             </div>
-            <nav className="hidden md:flex md:space-x-8">
+            <nav className="hidden md:flex md:items-center md:space-x-8">
               {navigation.map((item) => {
                 const isActive = pathname === item.href;
                 return (
@@ -53,6 +57,20 @@ export default function DashboardLayout({
                   </Link>
                 );
               })}
+              <div className="h-4 w-px bg-zinc-300 dark:bg-zinc-700" />
+              {externalNavigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`px-3 py-2 text-sm font-medium transition-colors ${
+                    pathname === item.href
+                      ? "text-indigo-600 dark:text-indigo-400"
+                      : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
             </nav>
             <div className="flex items-center space-x-4">
               <div className="hidden sm:block">
