@@ -7,14 +7,13 @@
 
 version: "3.9"
 
-x-postgres-url: &postgres_url "postgresql://${POSTGRES_USER:-aegis_admin}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-aegis_intel}"
+x-postgres-url: &postgres_url "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-localhost}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-postgres}?sslmode=${POSTGRES_SSLMODE:-require}"
 
 networks:
   aegis-bento-net:
     driver: bridge
 
 volumes:
-  postgres_data:
   redis_data:
   qdrant_data:
   ollama_data:
@@ -22,26 +21,6 @@ volumes:
   anythingllm_storage:
 
 services:
-  postgres:
-    image: postgres:15
-    container_name: aegis-art-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: "${POSTGRES_USER:-aegis_admin}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-change_me}"
-      POSTGRES_DB: "${POSTGRES_DB:-aegis_intel}"
-      TZ: "${TZ:-UTC}"
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-aegis_admin}"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./sql/aegis_art_intel_init.sql:/docker-entrypoint-initdb.d/001_aegis_art_intel.sql:ro
-    networks:
-      - aegis-bento-net
-
   redis:
     image: redis:7-alpine
     container_name: aegis-art-redis
@@ -62,16 +41,11 @@ services:
     container_name: aegis-art-qdrant
     restart: unless-stopped
     ports:
-      - "6333:6333"
+      - "7333:6333"
     environment:
       QDRANT__SERVICE__GRPC_PORT: 6334
     volumes:
       - qdrant_data:/qdrant/storage
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
     networks:
       - aegis-bento-net
 
@@ -89,48 +63,17 @@ services:
     networks:
       - aegis-bento-net
 
-  litellm:
-    image: ghcr.io/berriai/litellm:main
-    container_name: aegis-art-litellm
-    restart: unless-stopped
-    depends_on:
-      - ollama
-    environment:
-      LITELLM_CONFIG: /etc/litellm/config.yaml
-      LITELLM_MASTER_KEY: "${LITELLM_MASTER_KEY:-litellm_master_key}"
-      PORT: 4000
-      HOST: 0.0.0.0
-    volumes:
-      - ./config/litellm/litellm.yaml:/etc/litellm/config.yaml:ro
-    ports:
-      - "4000:4000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    networks:
-      - aegis-bento-net
-
   postgrest:
     image: postgrest/postgrest:v12.0.1
     container_name: aegis-art-postgrest
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
       PGRST_DB_URI: *postgres_url
       PGRST_DB_SCHEMA: public
-      PGRST_DB_ANON_ROLE: "${POSTGRES_USER:-aegis_admin}"
+      PGRST_DB_ANON_ROLE: "${POSTGRES_USER:-postgres}"
       PGRST_SERVER_PORT: 3000
     ports:
       - "3000:3000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/collector_leads?limit=1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
     networks:
       - aegis-bento-net
 
@@ -139,13 +82,7 @@ services:
     container_name: aegis-art-n8n
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
-        condition: service_healthy
-      litellm:
-        condition: service_healthy
-      postgrest:
         condition: service_healthy
     environment:
       N8N_ENCRYPTION_KEY: "${N8N_ENCRYPTION_KEY}"
@@ -154,10 +91,10 @@ services:
       N8N_PROTOCOL: http
       N8N_SECURE_COOKIE: "false"
       DB_TYPE: postgresdb
-      DB_POSTGRESDB_HOST: postgres
-      DB_POSTGRESDB_PORT: 5432
-      DB_POSTGRESDB_DATABASE: "${POSTGRES_DB:-aegis_intel}"
-      DB_POSTGRESDB_USER: "${POSTGRES_USER:-aegis_admin}"
+      DB_POSTGRESDB_HOST: "${POSTGRES_HOST:-localhost}"
+      DB_POSTGRESDB_PORT: "${POSTGRES_PORT:-5432}"
+      DB_POSTGRESDB_DATABASE: "${POSTGRES_DB:-postgres}"
+      DB_POSTGRESDB_USER: "${POSTGRES_USER:-postgres}"
       DB_POSTGRESDB_PASSWORD: "${POSTGRES_PASSWORD}"
       DB_POSTGRESDB_SCHEMA: n8n
       GENERIC_TIMEZONE: "${TZ:-UTC}"
@@ -169,12 +106,9 @@ services:
       ARTSY_CLIENT_SECRET: "${ARTSY_CLIENT_SECRET}"
       RESERVOIR_API_KEY: "${RESERVOIR_API_KEY}"
       MARKET_SLACK_WEBHOOK: "${MARKET_SLACK_WEBHOOK}"
-      LITELLM_MASTER_KEY: "${LITELLM_MASTER_KEY:-litellm_master_key}"
-      LITELLM_BASE_URL: "http://litellm:4000"
-      LITELLM_SCORING_MODEL: "${LITELLM_SCORING_MODEL:-gpt-4o-mini}"
       EMBEDDING_MODEL: "${EMBEDDING_MODEL:-nomic-embed-text}"
     ports:
-      - "${N8N_PORT:-5678}:5678"
+      - "${N8N_PORT:-5678}:${N8N_PORT:-5678}"
     volumes:
       - n8n_data:/home/node/.n8n
       - ./workflows:/workflows:ro
@@ -191,8 +125,6 @@ services:
     container_name: aegis-art-anythingllm
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
       qdrant:
         condition: service_healthy
       ollama:
@@ -205,7 +137,7 @@ services:
       EMBEDDING_BASE_PATH: http://ollama:11434
       VECTOR_DB: qdrant
       QDRANT_ENDPOINT: http://qdrant:6333
-      DATABASE_CONNECTION_STRING: "postgresql://${POSTGRES_USER:-aegis_admin}:${POSTGRES_PASSWORD}@postgres:5432/anythingllm"
+      DATABASE_CONNECTION_STRING: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-localhost}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-postgres}?sslmode=${POSTGRES_SSLMODE:-require}&options=--search_path%3D${ANYTHINGLLM_PG_SCHEMA:-anythingllm}%2Cpublic"
       JWT_SECRET: "${ANYTHINGLLM_JWT_SECRET:-change_me}"
     ports:
       - "3001:3001"
@@ -218,4 +150,3 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
