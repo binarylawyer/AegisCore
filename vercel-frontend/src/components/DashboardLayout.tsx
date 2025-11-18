@@ -9,6 +9,8 @@ const navigation = [
   { name: "Inventory", href: "/dashboard/inventory" },
   { name: "Collectors", href: "/dashboard/collectors" },
   { name: "Tokenization", href: "/dashboard/tokenization" },
+  { name: "Profiler", href: "/profiler" },
+  { name: "Market Intel", href: "/market-intelligence" },
 ];
 
 export default function DashboardLayout({
