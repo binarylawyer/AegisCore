@@ -148,6 +148,50 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* Team */}
+        <section className="mx-auto mt-24 max-w-4xl">
+          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 text-center">
+            About the Founders
+          </h2>
+          <p className="mt-6 text-center text-lg leading-8 text-zinc-600 dark:text-zinc-400">
+            Aegis Core was built by legal and art market professionals with deep expertise in both technology and the art industry.
+          </p>
+          <div className="mt-12 grid gap-8 md:grid-cols-2">
+            <div className="rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-900">
+              <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                Charles Moye
+              </h3>
+              <p className="mt-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                Founder & Architect
+              </p>
+              <div className="mt-6 space-y-4 text-zinc-600 dark:text-zinc-400">
+                <p>
+                  Charles Moye is a licensed attorney in the State of New York with nearly 30 years of bar membership. He has represented some of the top artists in both the digital and physical art worlds, and brings extensive expertise as a technology, cryptocurrency, and intellectual property attorney.
+                </p>
+                <p>
+                  As a software architect and engineer, Charles is the architect of Aegis Core, combining his legal expertise with technical innovation to solve the art market's fundamental compliance challenges.
+                </p>
+              </div>
+            </div>
+            <div className="rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-900">
+              <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                Brittany "Penny" Moye
+              </h3>
+              <p className="mt-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                Co-Founder & Art Market Expert
+              </p>
+              <div className="mt-6 space-y-4 text-zinc-600 dark:text-zinc-400">
+                <p>
+                  Brittany "Penny" Moye is an art dealer and Vice President at Moye Law. She is the founder of On The Coin, an artist management and creative firm that specializes in advising artists, collectors, curators, attorneys, accountants, and other participants in the art industry on best practices for both physical and digital art.
+                </p>
+                <p>
+                  Penny has organized and curated art events for physical and digital artists at prestigious venues including NFT Week in NYC, Miami Art Basel, and other major art events throughout the United States, bringing deep industry connections and market expertise to Aegis Core.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* CTA */}
         <section className="mx-auto mt-24 max-w-3xl text-center">
           <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-8 dark:border-indigo-800 dark:bg-indigo-900/20">
