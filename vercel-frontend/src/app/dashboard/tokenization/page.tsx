@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function TokenizationPage() {
+function TokenizationContent() {
   const searchParams = useSearchParams();
   const artworkId = searchParams.get("artwork");
 
@@ -437,6 +437,21 @@ export default function TokenizationPage() {
         )}
       </form>
     </div>
+  );
+}
+
+export default function TokenizationPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+          <p className="mt-4 text-zinc-600 dark:text-zinc-400">Loading...</p>
+        </div>
+      </div>
+    }>
+      <TokenizationContent />
+    </Suspense>
   );
 }
 
