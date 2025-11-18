@@ -90,6 +90,27 @@ Movement alerts from the "Movement Monitor" workflow:
 - `attention_score`: AI-calculated attention score
 - `metadata`: JSON with additional details
 
+#### 4. `artworks` Table
+Artwork inventory managed by galleries and artists through the dashboard:
+- `id`: UUID primary key
+- `title`, `artist`, `year`, `medium`, `dimensions`: Basic artwork information
+- `description`, `provenance`: Detailed information
+- `price`, `currency`: Pricing information
+- `domicile`: Legal domicile (US, EU, etc.)
+- `custody_type`, `custody_location`: Physical custody details
+- `insurance_provider`, `insurance_policy_number`, `insurance_value`: Insurance information
+- `royalty_percentage`, `royalty_recipient`: EIP-2981 royalty configuration
+- `tags`: Array of tags for categorization
+- `image_urls`: Array of Supabase Storage URLs for artwork images
+- `metadata`: JSON for additional metadata
+- `status`: Artwork status (`draft`, `listed`, `sold`, etc.)
+- `tokenized`: Boolean indicating if artwork has been tokenized
+- `master_nft_address`: ERC-721 Master NFT address (if tokenized)
+- `token_symbol`: ERC-3643 token symbol (if tokenized)
+- `created_at`, `updated_at`: Timestamps
+
+**Storage**: Artwork images are stored in Supabase Storage bucket `artworks` and referenced via `image_urls` array.
+
 ### How pgvector Enhances PostgreSQL
 
 PostgreSQL with the `pgvector` extension enables:

@@ -59,8 +59,33 @@ AEGIS/
 - `n8n`: workflow engine (mounts `/workflows`).
 - `anythingllm`: UI for research + Profiler-style search.
 
+## Database Schema
+
+The `supabase_init.sql` script creates the following tables in your Supabase PostgreSQL instance:
+
+- `collector_leads` - Lead candidates from Profiler workflows
+- `art_market_events` - Market intelligence events  
+- `art_movements` - Art movement tracking
+- `artworks` - Artwork inventory (for gallery/artist dashboard)
+
+**To initialize the database:**
+
+```bash
+psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=${POSTGRES_SSLMODE:-require}" -f sql/supabase_init.sql
+```
+
+## Supabase Storage Setup
+
+The frontend requires a Supabase Storage bucket named `artworks` for image uploads:
+
+1. Go to Supabase Dashboard → Storage
+2. Create bucket: `artworks`
+3. Set to Public (or configure RLS policies)
+4. Configure CORS if needed
+
 ## Notes
 
 - Make sure Artsy and Reservoir API keys are valid; the workflows will fail fast if not.
 - Slack webhook is optional but recommended for alerting.
 - Adjust cron schedules inside n8n if you need tighter cadences for the hackathon demo.
+- All Docker services connect to the same Supabase PostgreSQL instance via environment variables.
