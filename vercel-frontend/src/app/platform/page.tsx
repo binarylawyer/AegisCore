@@ -1,55 +1,11 @@
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
 
 export default function PlatformPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950">
-      {/* Header */}
-      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
-                <span className="text-sm font-bold">AC</span>
-              </div>
-              <span className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-                Aegis Core
-              </span>
-            </Link>
-            <nav className="hidden md:flex md:space-x-8">
-              <Link
-                href="/about"
-                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-              >
-                About
-              </Link>
-              <Link
-                href="/platform"
-                className="text-sm font-medium text-indigo-600 dark:text-indigo-400"
-              >
-                Platform
-              </Link>
-              <Link
-                href="/market-intelligence"
-                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-              >
-                Market Intelligence
-              </Link>
-              <Link
-                href="/profiler"
-                className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-              >
-                Profiler
-              </Link>
-            </nav>
-            <Link
-              href="/dashboard"
-              className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
-            >
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         {/* Hero */}
@@ -368,6 +324,7 @@ export default function PlatformPage() {
           </div>
         </section>
       </main>
+      <SiteFooter />
     </div>
   );
 }
