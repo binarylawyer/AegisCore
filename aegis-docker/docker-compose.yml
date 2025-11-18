@@ -12,6 +12,7 @@ x-postgres-url: &postgres_url "postgresql://${POSTGRES_USER:-postgres}:${POSTGRE
 networks:
   aegis-bento-net:
     driver: bridge
+    enable_ipv6: true
 
 volumes:
   redis_data:
