@@ -100,6 +100,12 @@ export default function SiteFooter() {
         <div className="mt-8 border-t border-zinc-200 pt-8 dark:border-zinc-800">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             © 2024 Aegis Core. All rights reserved.
+            <Link
+              href="/sushi-software"
+              className="ml-2 text-xs text-zinc-400 opacity-60 transition-colors hover:opacity-100"
+            >
+              Kitchen Terminal
+            </Link>
           </p>
         </div>
       </div>
