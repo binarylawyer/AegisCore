@@ -1,6 +1,4 @@
 # AegisCore
-
-I shortened the description from this longer one.
 Aegis Core is the institutional operating system designed to solve the global art market’s critical paradox: the conflict between high-net-worth collector privacy and stringent financial regulation. By pioneering a proprietary "Double-Blind" compliance architecture, Aegis Core separates identity verification from market participation.
 
 Trusted law firms utilize our Opus-powered compliance engine to verify clients off-chain, issuing anonymous, non-falsifiable ERC-3643 attestations on-chain. This allows verified collectors to trade fractionalized, high-value art assets—legally wrapped in Delaware Series LLCs or Luxembourg Compartments—with absolute anonymity, while providing sellers with cryptographic proof of eligibility.
