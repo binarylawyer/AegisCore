@@ -159,20 +159,17 @@ export default function AboutPage() {
           <div className="mt-12 grid gap-8 md:grid-cols-2">
             <div className="rounded-xl border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-900">
               <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-                Christopher Moye, Esq.
+                Charles Moye
               </h3>
               <p className="mt-2 text-sm font-medium text-indigo-600 dark:text-indigo-400">
                 Founder & Architect
               </p>
               <div className="mt-6 space-y-4 text-zinc-600 dark:text-zinc-400">
                 <p>
-                  Christopher Moye, Esq. is a licensed attorney in the State of New York with nearly 30 years of bar membership. He has represented some of the top artists in both the digital and physical art worlds, and brings extensive expertise as a technology, cryptocurrency, and intellectual property attorney.
+                  Charles Moye is a licensed attorney in the State of New York with nearly 30 years of bar membership. He has represented some of the top artists in both the digital and physical art worlds, and brings extensive expertise as a technology, cryptocurrency, and intellectual property attorney.
                 </p>
                 <p>
-                  Mr. Moye has worked as a subject matter expert for several major investment banks and for telecom and entertainment companies. He has been responsible for the negotiation of transactions exceeding a value of $500M in deal value and spend.
-                </p>
-                <p>
-                  As a software architect and engineer, Christopher is the architect of Aegis Core, combining his legal expertise with technical innovation to solve the art market's fundamental compliance challenges.
+                  As a software architect and engineer, Charles is the architect of Aegis Core, combining his legal expertise with technical innovation to solve the art market's fundamental compliance challenges.
                 </p>
               </div>
             </div>

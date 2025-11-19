@@ -1,15 +1,6 @@
 model_list:
-  - model_name: google/gemini-2.5-pro
-    litellm_params:
-      model: google/gemini-2.5-pro
-      api_base: https://api.aimlapi.com/v1
-      api_key: ${AIMLAPI_KEY}
-  - model_name: openai/gpt-4o
-    litellm_params:
-      model: openai/gpt-4o
-      api_key: ${OPENAI_API_KEY}
   - model_name: ollama/llama3
     litellm_params:
       model: ollama/llama3
       api_base: http://ollama:11434
-      api_key: "ollama"   # not used but required by some clients
+      api_key: "ollama"

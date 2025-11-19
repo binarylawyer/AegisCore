@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Header, Depends, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict
 from datetime import datetime
 import os
 import json
@@ -40,7 +40,7 @@ class LegalEntityRequest(BaseModel):
 class DocumentGenerationRequest(BaseModel):
     entity_id: str
     entity_type: str
-    template_data: Dict[str, Any]
+    template_data: Dict[str, any]
     form_fields: Dict[str, str]  # Fields filled by HITL
 
 class LegalEntityResponse(BaseModel):
