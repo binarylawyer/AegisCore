@@ -99,6 +99,28 @@ services:
       timeout: 10s
       retries: 5
 
+  legal-entity-api:
+    build:
+      context: ./services/legal-entity-api
+      dockerfile: Dockerfile
+    container_name: aegis-art-legal-entity-api
+    restart: unless-stopped
+    environment:
+      API_KEY: "${LEGAL_ENTITY_API_KEY:-change-me-in-production}"
+      CORS_ORIGINS: "${LEGAL_ENTITY_CORS_ORIGINS:-*}"
+      PERSONA_API_KEY: "${PERSONA_API_KEY:-}"
+      ONFIDO_API_KEY: "${ONFIDO_API_KEY:-}"
+      BLOCKPASS_API_KEY: "${BLOCKPASS_API_KEY:-}"
+    ports:
+      - "8082:8082"
+    networks:
+      - aegis-bento-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   ollama:
     image: ollama/ollama:latest
     container_name: aegis-art-ollama
