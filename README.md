@@ -188,8 +188,7 @@ Galleries can upload a photo of a new piece, and our **Vertex AI** integration f
 
 -----
 
-**Built for the AI Genesis Hackathon.**
-*By [Your Team Name]*
+
 
 Trusted law firms utilize our Opus-powered compliance engine to verify clients off-chain, issuing anonymous, non-falsifiable ERC-3643 attestations on-chain. This allows verified collectors to trade fractionalized, high-value art assets—legally wrapped in Delaware Series LLCs or Luxembourg Compartments—with absolute anonymity, while providing sellers with cryptographic proof of eligibility.
 
