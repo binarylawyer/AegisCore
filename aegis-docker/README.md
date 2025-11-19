@@ -1,4 +1,4 @@
-﻿# AEGIS Profiler Bento
+# AEGIS Profiler Bento
 
 Self-contained bundle of the art-intelligence stack described in docs/aegis-core/PRD_ AegisCore-Global_Art_Marketplace.md (Sec. 7.0 "The Profiler"). Drop this folder into any repo and run the docker compose recipe to get:
 
