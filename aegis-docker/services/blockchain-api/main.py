@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 import os
 import json
@@ -110,7 +110,7 @@ class CustodyConfirmationRequest(BaseModel):
     transfer_id: str
     custodian_wallet: str
     artwork_id: str
-    condition_report: Dict[str, any]
+    condition_report: Dict[str, Any]
     storage_location: str
     insurance_coverage: Dict[str, str]
 
